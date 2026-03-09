@@ -1,0 +1,257 @@
+/* src/styles/global.css */
+
+/*
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ MODERN CSS FEATURES SHOWCASE                                        │
+  │ ─────────────────────────────────────────────────────────────────── │
+  │ This file demonstrates modern CSS capabilities:                     │
+  │ ✅ clamp()           — Fluid typography & spacing                   │
+  │ ✅ @container        — Component-level responsiveness               │
+  │ ✅ CSS Nesting       — Native nesting (&) instead of Sass          │
+  │ ✅ :has()            — Parent-aware styling & complex selectors      │
+  │ ✅ color-mix()       — Dynamic color variations                      │
+  │ ✅ Logical Props     — margin-inline, padding-block (LTR/RTL)      │
+  │ ✅ @supports         — Feature detection & fallbacks                │
+  │ ✅ :focus-visible    — Better keyboard accessibility                │
+  └─────────────────────────────────────────────────────────────────────┘
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+/* ── DARK THEME (default) ───────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  --color-bg-primary:  #0a0d12;
+  --color-bg-card:     #0f1318;
+  --color-bg-surface:  #141920;
+  --color-bg-hover:    #1a2130;
+
+  --color-border-subtle: rgba(255,255,255,0.06);
+  --color-border-accent: rgba(52,211,153,0.3);
+
+  --color-accent-green:      #34d399;
+  --color-accent-green-dim:  rgba(52,211,153,0.15);
+  --color-accent-green-glow: rgba(52,211,153,0.06);
+
+  --color-text-primary:   #f0f4f8;
+  --color-text-secondary: #8fa3b1;
+  --color-text-muted:     #4a5a6a;
+
+  --color-cpu:     #60a5fa;
+  --color-ram:     #a78bfa;
+  --color-storage: #fb923c;
+  --color-network: #38bdf8;
+  --color-gpu:     #34d399;
+
+  --color-eff-low:  #f87171;
+  --color-eff-mid:  #fbbf24;
+  --color-eff-high: #34d399;
+}
+
+/* ── LIGHT THEME ────────────────────────────────────────────────── */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-bg-primary:  #f4f6f9;
+  --color-bg-card:     #ffffff;
+  --color-bg-surface:  #eef1f5;
+  --color-bg-hover:    #e4e9f0;
+
+  --color-border-subtle: rgba(0,0,0,0.07);
+  --color-border-accent: rgba(16,160,100,0.35);
+
+  --color-accent-green:      #0ea568;
+  --color-accent-green-dim:  rgba(14,165,104,0.12);
+  --color-accent-green-glow: rgba(14,165,104,0.06);
+
+  --color-text-primary:   #0e1117;
+  --color-text-secondary: #4a5568;
+  --color-text-muted:     #a0aec0;
+
+  --color-cpu:     #3b82f6;
+  --color-ram:     #7c3aed;
+  --color-storage: #ea580c;
+  --color-network: #0284c7;
+  --color-gpu:     #059669;
+
+  --color-eff-low:  #dc2626;
+  --color-eff-mid:  #d97706;
+  --color-eff-high: #059669;
+}
+
+/* ── RESET ──────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+/* ── REDUCED MOTION ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── SCROLLBAR ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--color-bg-hover); border-radius: 3px; }
+
+/* ── CONTAINER QUERIES ──────────────────────────────────────────── */
+@container (max-width: 640px) {
+  main section {
+    --card-padding: 1rem;
+  }
+}
+
+@container (min-width: 641px) and (max-width: 1024px) {
+  main section {
+    --card-padding: 1.5rem;
+  }
+}
+
+@container (min-width: 1025px) {
+  main section {
+    --card-padding: 2rem;
+  }
+}
+
+/* ── FLUID SIZING WITH CLAMP ────────────────────────────────────── */
+section {
+  /* Fluid spacing: min 1rem, preferred 5vw, max 4rem */
+  padding-inline: clamp(1rem, 5vw, 4rem);
+  padding-block: clamp(2rem, 8vh, 6rem);
+}
+
+h1, h2, h3 {
+  /* Fluid typography: scales between 1.25rem and 3rem */
+  font-size: clamp(1.25rem, 5vw, 3rem);
+  line-height: 1.2;
+}
+
+/* ── ANIMATIONS ─────────────────────────────────────────────────── */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(6px); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--color-accent-green); }
+  50%       { opacity: 0.6; box-shadow: 0 0 12px var(--color-accent-green); }
+}
+
+/* ── CSS NESTING & PARENT-AWARE STYLING ─────────────────────────── */
+section {
+  /* :has() selector — apply styles based on children */
+  &:has(> [role="img"]) {
+    position: relative;
+    /* Parent-aware: if contains an image role, adjust layout */
+  }
+
+  /* Nested states with modern CSS */
+  & > div:focus-visible {
+    outline: 2px solid var(--color-accent-green);
+    outline-offset: 2px;
+  }
+}
+
+button {
+  /* :has() for button states — style based on sibling or child state */
+  &:hover {
+    background: color-mix(in srgb, var(--color-bg-hover) 95%, var(--color-accent-green) 5%);
+  }
+
+  &:active {
+    background: color-mix(in srgb, var(--color-bg-hover) 90%, var(--color-accent-green) 10%);
+  }
+
+  /* Logical properties for padding */
+  padding-inline: clamp(0.75rem, 2vw, 1.5rem);
+  padding-block: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+/* ── COLOR-MIX() FOR DYNAMIC VARIATIONS ────────────────────────── */
+:root:where([data-theme="light"]) {
+  --color-accent-green-light: color-mix(in srgb, var(--color-accent-green) 80%, white);
+  --color-text-light: color-mix(in srgb, var(--color-text-primary) 70%, white);
+}
+
+:root:where([data-theme="dark"]) {
+  --color-accent-green-dark: color-mix(in srgb, var(--color-accent-green) 60%, black);
+  --color-text-dark: color-mix(in srgb, var(--color-text-primary) 50%, black);
+}
+
+/* ── LOGICAL PROPERTIES FOR RESPONSIVE SPACING ───────────────────── */
+main {
+  /* Logical properties work with all writing modes (LTR/RTL) */
+  margin-inline: auto;                           /* margin-left + margin-right */
+  padding-inline: clamp(1rem, 5vw, 4rem);       /* padding-left + padding-right */
+  max-inline-size: 1100px;                       /* max-width (but writing-mode aware) */
+}
+
+article, section, [role="region"] {
+  /* Block-direction logical properties */
+  margin-block-start: clamp(2rem, 8vh, 4rem);
+  margin-block-end: clamp(2rem, 8vh, 4rem);
+  padding-block: clamp(1rem, 4vh, 2rem);
+}
+
+/* ── @SUPPORTS FOR FEATURE DETECTION ───────────────────────────── */
+@supports (display: grid) {
+  /* Modern grid browsers get optimized layout */
+  section > div {
+    display: grid;
+    gap: clamp(0.5rem, 2vw, 2rem);
+  }
+}
+
+@supports (backdrop-filter: blur(10px)) {
+  /* Modern browsers with backdrop filter support */
+  [role="tooltip"], .tooltip {
+    backdrop-filter: blur(8px);
+    background: color-mix(in srgb, var(--color-bg-surface) 85%, transparent);
+  }
+}
+
+/* ── ENHANCED :HAS() FOR COMPLEX SELECTORS ──────────────────────── */
+/* Style parent based on interactive state of children */
+div:has(> button:hover) {
+  background: color-mix(in srgb, var(--color-bg-hover) 50%, var(--color-accent-green) 2%);
+  transition: background 0.2s ease;
+}
+
+/* Style containers when they have focused elements */
+div:has(> *:focus-visible) {
+  outline: 1px solid var(--color-border-accent);
+  border-radius: var(--border-radius-sm, 4px);
+}

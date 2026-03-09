@@ -1,5 +1,3 @@
-// src/components/BarChart.tsx
-
 import { useState, useRef } from 'react'
 import { tokens } from '../tokens'
 import type { CostNode } from '../types'
@@ -59,7 +57,6 @@ export function BarChart({ items, active }: Props) {
                     opacity:      hovered && !isHovered ? 0.5 : 1,
                   }}
                 >
-                  {/* shimmer */}
                   <div style={{
                     position:   'absolute',
                     inset:      0,
@@ -81,7 +78,6 @@ export function BarChart({ items, active }: Props) {
         })}
       </div>
 
-      {/* Tooltip */}
       {hoveredItem && (
         <div style={{
           position:     'fixed',

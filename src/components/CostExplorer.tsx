@@ -1,5 +1,3 @@
-// src/components/CostExplorer.tsx
-
 import { useState, useCallback } from 'react'
 import { tokens } from '../tokens'
 import { useInView } from '../hooks/useInView'
@@ -9,7 +7,6 @@ import { CostRow } from './CostRow'
 import { StatCard } from './StatCard'
 import type { Cluster, CostNode, BreadcrumbItem, DrillLevel } from '../types'
 
-// ── Table header ─────────────────────────────────────────────────────────────
 const HEADERS = ['Name', 'CPU', 'RAM', 'Storage', 'Network', 'GPU', 'Efficiency', 'Total']
 const HEADER_COLORS = [
   null,
@@ -49,7 +46,6 @@ function TableHeader() {
   )
 }
 
-// ── Legend pill ───────────────────────────────────────────────────────────────
 function LegendPill({ color, label }: { color: string; label: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -59,14 +55,12 @@ function LegendPill({ color, label }: { color: string; label: string }) {
   )
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function effColor(e: number) {
   if (e < 20) return tokens.colors.effLow
   if (e < 50) return tokens.colors.effMid
   return tokens.colors.effHigh
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
 interface Props { clusters: Cluster[] }
 
 export function CostExplorer({ clusters }: Props) {
@@ -75,8 +69,6 @@ export function CostExplorer({ clusters }: Props) {
   const [animKey, setAnimKey] = useState(0)
 
   const triggerAnim = useCallback(() => setAnimKey(k => k + 1), [])
-
-  // Resolve current items, level, breadcrumbs
   let items: CostNode[]   = clusters
   let level: DrillLevel   = 'cluster'
   const crumbs: BreadcrumbItem[] = [{ label: 'All Clusters', depth: -1 }]
@@ -126,7 +118,6 @@ export function CostExplorer({ clusters }: Props) {
       aria-label="Cloud Cost Explorer"
       style={{ padding: '0 clamp(16px, 5vw, 60px) 120px', maxWidth: '1100px', margin: '0 auto' }}
     >
-      {/* Controls row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <div style={{
           background:   tokens.colors.bgSurface,
@@ -143,7 +134,6 @@ export function CostExplorer({ clusters }: Props) {
         <Breadcrumb crumbs={crumbs} onNav={handleNav} />
       </div>
 
-      {/* Stat cards */}
       <div style={{
         display:             'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
@@ -155,7 +145,6 @@ export function CostExplorer({ clusters }: Props) {
         <StatCard label="Avg Efficiency" value={avgEfficiency} color={effColor(avgEfficiency)} active={inView} delay="160ms" prefix="" suffix="%" />
       </div>
 
-      {/* Main card */}
       <div style={{
         background:   tokens.colors.bgCard,
         border:       `1px solid ${tokens.colors.borderSubtle}`,
@@ -166,7 +155,6 @@ export function CostExplorer({ clusters }: Props) {
         transition:   'opacity 0.6s ease, transform 0.6s ease',
         boxShadow:    tokens.shadows.card,
       }}>
-        {/* Bar chart */}
         <div style={{
           padding:    '32px 32px 20px',
           borderBottom: `1px solid ${tokens.colors.borderSubtle}`,
@@ -185,7 +173,6 @@ export function CostExplorer({ clusters }: Props) {
           }
         </div>
 
-        {/* Legend */}
         <div style={{
           padding:      '12px 32px',
           display:      'flex',
@@ -200,7 +187,6 @@ export function CostExplorer({ clusters }: Props) {
           <LegendPill color={tokens.colors.gpu}     label="GPU"     />
         </div>
 
-        {/* Table */}
         <div style={{ padding: '16px 16px 24px' }}>
           <TableHeader />
           {items.length > 0
@@ -222,7 +208,6 @@ export function CostExplorer({ clusters }: Props) {
           }
         </div>
 
-        {/* Drill hint */}
         {level !== 'pod' && items.some((_, i) => isClickable(i)) && (
           <div style={{
             padding:     '12px 32px',
@@ -240,7 +225,6 @@ export function CostExplorer({ clusters }: Props) {
         )}
       </div>
 
-      {/* Aggregated-by tag */}
       <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ fontSize: '12px', color: tokens.colors.textMuted, fontFamily: tokens.font.sans }}>
           Aggregated by:

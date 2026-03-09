@@ -1,5 +1,3 @@
-// src/components/States.tsx
-
 import { tokens } from '../tokens'
 
 export function LoadingState() {

@@ -1,5 +1,3 @@
-// src/components/AnimNum.tsx
-
 import { useCountUp } from '../hooks/useCountUp'
 
 interface Props {

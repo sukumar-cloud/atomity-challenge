@@ -1,5 +1,3 @@
-// src/types/index.ts
-
 export interface CostNode {
   id:         string
   label:      string

@@ -1,5 +1,3 @@
-// src/components/CostRow.tsx
-
 import { useState } from 'react'
 import { tokens } from '../tokens'
 import { AnimNum } from './AnimNum'

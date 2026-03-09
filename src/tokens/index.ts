@@ -1,7 +1,3 @@
-// tokens/index.ts
-// Single source of truth for all design values.
-// Components reference these — never raw hex values.
-
 export const tokens = {
   colors: {
     // Backgrounds

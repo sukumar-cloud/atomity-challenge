@@ -1,5 +1,3 @@
-// src/components/Breadcrumb.tsx
-
 import { tokens } from '../tokens'
 import type { BreadcrumbItem } from '../types'
 

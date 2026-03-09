@@ -1,5 +1,3 @@
-// src/components/Hero.tsx
-
 import { tokens } from '../tokens'
 
 export function Hero() {

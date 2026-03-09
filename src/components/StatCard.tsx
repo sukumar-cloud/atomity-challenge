@@ -1,5 +1,3 @@
-// src/components/StatCard.tsx
-
 import { tokens } from '../tokens'
 import { AnimNum } from './AnimNum'
 

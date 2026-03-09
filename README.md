@@ -168,7 +168,7 @@ Tested on Chrome DevTools emulation, Firefox/Safari responsive design mode.
 
 ## Deployment
 
-### Option 1: Vercel (Recommended)
+### 1: Vercel (Recommended)
 
 ```bash
 # 1. Create GitHub repository
@@ -187,12 +187,7 @@ vercel
 # Your live URL will be printed (e.g., atomity-challenge.vercel.app)
 ```
 
-### Option 2: Netlify
 
-```bash
-npm i -g netlify-cli
-netlify deploy --prod --dir=dist --site=YOUR_SITE_ID
-```
 
 ### Local Development
 

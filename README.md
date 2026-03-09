@@ -1,219 +1,237 @@
 # Atomity Frontend Challenge — Cloud Cost Explorer
 
-Live demo: **[https://atomity-challenge-63m3dbya3-sssssssssssssss-projects.vercel.app/]**
+Live Demo  
+https://atomity-challenge-63m3dbya3-sssssssssssssss-projects.vercel.app/
 
 ---
 
 ## Feature Chosen
 
-**Option A** — the hierarchical cost drill-down section (0:30–0:40).
+**Option A — Hierarchical Cost Drill-Down (Cluster → Namespace → Pod)**
 
-I chose this because it has the most interesting interaction model: a three-level tree (Cluster → Namespace → Pod) that maps naturally to a composable component hierarchy. The animated bar chart + tabular data combo also gave me room to show off both motion craft and data rendering in a single cohesive section.
+This feature appears in the product video between **0:30–0:40**.
 
----
+I selected this feature because it demonstrates a clear interaction pattern: a **three-level hierarchical cost breakdown** where users can progressively drill down from clusters to namespaces and finally to pods.
 
-## Approach to Animation
+This approach allowed me to showcase:
 
-All animations are CSS-transition-based (no external animation library) to keep the bundle lean:
-
-- **Scroll trigger** — `IntersectionObserver` via `useInView` fires once when the section enters the viewport; all child elements then animate in via `opacity` + `transform` transitions with staggered `transitionDelay`.
-- **Bar chart** — height animates from `0%` to the proportional value using `cubic-bezier(0.34, 1.56, 0.64, 1)` (slight overshoot spring feel), staggered by 80ms per bar.
-- **Table rows** — fade + slide-left with 60ms stagger per row.
-- **Count-up numbers** — `requestAnimationFrame` loop with cubic ease-out via `useCountUp`. Fires on scroll entry and on every drill-down navigation.
-- **Drill-down transitions** — `animKey` increments on every path change, remounting animated children so count-up and stagger replay naturally.
-- **prefers-reduced-motion** — global CSS rule sets all durations to `0.01ms`, fully disabling motion for users who need it.
+- Scroll-triggered animations
+- Dynamic data rendering
+- Interactive state transitions
+- Reusable component architecture
 
 ---
 
-## Token Architecture
+## Animation Approach
 
-Tokens live in `src/tokens/index.ts` as TypeScript `const` referencing CSS custom properties:
+Animations are implemented using **Framer Motion**.
+
+The section animates when it enters the viewport using scroll-triggered animations.
+
+**Section entrance animation**  
+Opacity and vertical translation animate when the component becomes visible.
+
+**Bar chart animation**  
+Each bar grows from the bottom using `scaleY` animation with staggered delays.
+
+**Staggered child animations**  
+Bars and table rows appear sequentially to create a smooth progressive reveal.
+
+**Number count-up animation**  
+Metric totals animate from `0` to their value when the component loads.
+
+**Reduced motion support**  
+Animations respect the `prefers-reduced-motion` media query to improve accessibility.
+
+---
+
+## Token / Style Architecture
+
+The project uses a **design token approach** to ensure consistent styling.
+
+Tokens are defined in:
+
+`src/tokens/tokens.ts`
+
+Example:
 
 ```ts
 export const tokens = {
   colors: {
-    bgPrimary: 'var(--color-bg-primary)',
-    accentGreen: 'var(--color-accent-green)',
-    // ...
+    bgPrimary: "var(--color-bg-primary)",
+    textPrimary: "var(--color-text-primary)",
+    accentPrimary: "var(--color-accent-primary)"
   },
-  spacing: { xs: '4px', sm: '8px', ... },
-  radius:  { sm: '6px', md: '10px', ... },
-  font:    { sans: "'DM Sans', ...", mono: "'JetBrains Mono', ..." },
-} as const
+  radius: {
+    card: "12px"
+  },
+  spacing: {
+    section: "clamp(3rem, 6vw, 6rem)"
+  }
+}
 ```
 
-CSS variables are defined in `src/styles/global.css` under `:root` (dark) and `:root[data-theme='light']` (light). Switching themes is a single `setAttribute('data-theme', theme)` call — every component updates automatically because they only reference `var(--color-*)`.
+Global CSS variables are defined in `globals.css`:
 
-No component ever contains a raw hex value.
+```css
+:root {
+  --color-bg-primary: #ffffff;
+  --color-text-primary: #0e0f11;
+  --color-accent-primary: #4ade80;
+}
+```
+
+All components reference **tokens instead of raw hex color values**, which ensures consistent styling and easier theme management.
 
 ---
 
-## Data Fetching & Caching
+## Data Fetching and Caching
 
-**API used:** [DummyJSON](https://dummyjson.com) — `GET /products?limit=16`
+The application fetches data dynamically from the **DummyJSON API**.
 
-**Strategy:**
+API Endpoint:
 
-1. `useClusterData` (in `src/hooks/useClusterData.ts`) wraps a TanStack Query `useQuery`.
-2. Fetched product prices are used as a multiplicative jitter factor over the static cluster schema — giving dynamic numbers while keeping the data shape sensible.
-3. **Cache config:**
-   - `staleTime: 5 minutes` — no refetch while data is fresh (instant revisit).
-   - `gcTime: 10 minutes` — data stays in memory cache for 10 min after last use.
-   - `retry: 2` — two retries on network failure.
-4. On error, the app gracefully falls back to `CLUSTERS` static data and shows an error banner.
-
-You can verify in DevTools → Network: first load shows one `dummyjson.com` request; navigate away and back within 5 min — zero new requests.
-
----
-
-## Modern CSS Features
-
-The app uses several modern CSS capabilities for responsive, maintainable styling:
-
-### 1. **Fluid Sizing with clamp()**
-```css
-section {
-  padding-inline: clamp(1rem, 5vw, 4rem);  /* min, preferred, max */
-}
-
-h2 {
-  font-size: clamp(1.25rem, 5vw, 3rem);    /* scales smoothly between viewport sizes */
-}
 ```
-✅ Eliminates need for multiple breakpoints  
-✅ Smooth scaling between min and max
-
-### 2. **Container Queries (@container)**
-```css
-@container (max-width: 640px) {
-  main section { --card-padding: 1rem; }
-}
-```
-✅ Component-level responsiveness, not viewport-level  
-✅ Predictable scaling based on parent container
-
-### 3. **Logical Properties (margin-inline, padding-block)**
-```css
-padding-inline: clamp(1rem, 5vw, 4rem);  /* left + right, RTL/LTR aware */
-```
-✅ Bidirectional text support built-in  
-✅ Cleaner, intention-clear code
-
-### 4. **CSS Custom Properties for Theming**
-All colors use CSS variables that switch on data-theme:
-```css
-:root { --color-bg-primary: #0a0d12; }
-:root[data-theme='light'] { --color-bg-primary: #f4f6f9; }
+https://dummyjson.com/products?limit=4
 ```
 
----
+API values are mapped into simulated cloud cost metrics such as:
 
-## Accessibility Features
+- CPU cost
+- RAM cost
+- Storage cost
+- Network cost
+- GPU cost
 
-- ✅ **Semantic HTML** — `<section>`, `<nav>`, `<button>` (not divs pretending to be buttons)
-- ✅ **ARIA labels** — `aria-label`, `aria-current`, `role` attributes
-- ✅ **Color contrast** — WCAG AA compliant (4.5:1 minimum)
-- ✅ **Keyboard navigation** — Tab order logical, Enter/Space activate buttons
-- ✅ **prefers-reduced-motion** — animations disabled for users who need it
-- ✅ **Focus management** — visible focus rings on interactive elements
-- ✅ **Dark/Light modes** — both meet accessibility standards
+Data fetching and caching are handled using **TanStack Query (React Query)**.
+
+Configuration:
+
+- `staleTime: 60000` (1 minute freshness window)
+- Automatic caching in memory
+- Built-in loading and error state handling
+
+This ensures:
+
+- **First visit → API request is made**
+- **Subsequent visits → cached data loads instantly without new requests**
 
 ---
 
 ## Libraries Used
 
-| Library | Why |
-|---|---|
-| React 18 | Component model, hooks |
-| Vite | Fast dev server + optimised production build |
-| TypeScript | Type safety across all components and hooks |
-| TanStack Query v5 | Data fetching, caching, loading/error states |
-| Modern CSS | `clamp()`, `@container`, logical properties, CSS variables |
+| Library | Purpose |
+|-------|--------|
+| **React / Next.js** | Core framework and component architecture |
+| **TypeScript** | Static type safety |
+| **Framer Motion** | Animation system |
+| **TanStack Query** | Data fetching, caching, and async state handling |
+| **Modern CSS** | clamp(), CSS variables, logical properties |
 
-No UI component libraries used ✅. Every card, badge, row, chart, and button is built from scratch.
+No UI component libraries were used.  
+All UI elements such as cards, tables, charts, and buttons were built from scratch.
+
+---
+
+## Modern CSS Features
+
+Several modern CSS techniques were used.
+
+### Fluid Typography
+
+```css
+font-size: clamp(1.8rem, 3vw, 2.5rem);
+```
+
+### Logical Properties
+
+```
+padding-inline
+margin-block
+```
+
+### CSS Custom Properties
+
+Used to implement the token-based design system and centralized theme management.
+
+These approaches improve responsiveness and maintainability.
+
+---
+
+## Accessibility
+
+Basic accessibility best practices were implemented:
+
+- Semantic HTML elements (`<section>`, `<table>`, `<button>`)
+- Keyboard-accessible controls
+- Adequate color contrast
+- `prefers-reduced-motion` support
+- Visible focus states for interactive elements
 
 ---
 
 ## Responsive Design
 
-- **Desktop (1280px+)** — full layout with all columns visible
-- **Tablet (768px–1279px)** — stacked stat cards, `clamp()` adjusts padding
-- **Mobile (375px–767px)** — vertical layout, touch-friendly spacing, table scrolls horizontally
+The section adapts across multiple screen sizes.
 
-Tested on Chrome DevTools emulation, Firefox/Safari responsive design mode.
+**Desktop (1280px+)**  
+Full layout with chart and table visible.
 
----
+**Tablet (768px+)**  
+Adaptive spacing and responsive layout.
 
-## Tradeoffs & Decisions
+**Mobile (375px+)**  
+Vertical stacking layout with readable typography.
 
-- **CSS transitions over Framer Motion** — kept bundle size down. The animations needed (stagger, spring height, count-up) are all achievable with native CSS + rAF. Would reach for Framer Motion if I needed gesture-based drag, layout animations, or complex sequencing.
-- **Inline styles over Tailwind/CSS Modules** — easier to wire tokens as JS references and avoid class name collisions across isolated components. Tradeoff: slightly verbose JSX.
-- **Static data schema + API jitter** — DummyJSON doesn't have cloud cost data, so I used API values as variance factors. This honestly demonstrates async state handling (loading, error, success, caching) without fabricating a fake endpoint.
-- **Fixed positioning for tooltips** — avoids clipping but anchors to viewport instead of bar. Trade-off for UX clarity.
-- **No virtual scrolling** — the data sets shown are small (≤ 4 rows per level). Would add `react-virtual` if the pod list grew to hundreds.
+Responsive typography is implemented using `clamp()`.
 
 ---
 
-## What I'd Improve With More Time
+## Tradeoffs and Decisions
 
-- Add **Framer Motion** `layout` animations so bars and rows reflow smoothly when switching levels, rather than remounting.
-- **Keyboard navigation** through the drill-down tree (arrow keys to select rows, Escape to go up a level).
-- A **time-range picker** (7D / 30D / 90D) that fetches different dataset slices.
-- **Sparkline** micro-charts per row showing cost trend over the selected period.
-- Full **WCAG AAA audit** + automated testing (axe-core).
-- **Cypress E2E tests** covering the drill-down flow and dark mode toggle.
-- **Real API backend** with pagination, filtering, and search.
+DummyJSON does not contain real cloud infrastructure data, so its numeric values were mapped to simulated cost metrics.
+
+A lightweight custom bar chart was implemented instead of using a charting library to maintain full control over animations and component architecture.
+
+The focus of the challenge was to build **one polished section**, prioritizing quality and clarity over building an entire page.
+
+---
+
+## What I Would Improve With More Time
+
+- Add smooth layout transitions when switching between Cluster, Namespace, and Pod levels
+- Add time-range filters such as 7-day, 30-day, and 90-day views
+- Add sparkline charts for trend visualization
+- Implement automated accessibility testing
+- Add end-to-end tests for drill-down interactions
+
+---
+
+## Local Development
+
+Install dependencies:
+
+```
+npm install
+```
+
+Run development server:
+
+```
+npm run dev
+```
+
+Open in browser:
+
+```
+http://localhost:3000
+```
 
 ---
 
 ## Deployment
 
-### 1: Vercel (Recommended)
+The project is deployed using **Vercel**.
 
-```bash
-# 1. Create GitHub repository
-git init
-git add .
-git commit -m "Initial commit: Atomity Cloud Cost Explorer"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/atomity-challenge.git
-git push -u origin main
-
-# 2. Deploy to Vercel
-npm i -g vercel
-vercel
-
-# Follow prompts → select GitHub project → deploy
-# Your live URL will be printed (e.g., atomity-challenge.vercel.app)
 ```
 
-
-
-### Local Development
-
-```bash
-npm install
-npm run dev      # Starts at http://localhost:5173
-npm run build    # Builds to dist/
-npm run preview  # Preview production build locally
-```
-
----
-
-## Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
-
----

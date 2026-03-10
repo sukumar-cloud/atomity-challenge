@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { tokens } from '../tokens'
 import { AnimNum } from './AnimNum'
 import type { CostNode } from '../types'
@@ -30,7 +31,7 @@ export function CostRow({ item, idx, active, clickable, onClick }: Props) {
   const ec = efficiencyColor(item.efficiency)
 
   return (
-    <div
+    <motion.div
       role={clickable ? 'button' : undefined}
       tabIndex={clickable ? 0 : undefined}
       aria-label={clickable ? `Drill into ${item.label}` : undefined}
@@ -38,6 +39,14 @@ export function CostRow({ item, idx, active, clickable, onClick }: Props) {
       onKeyDown={clickable ? (e) => e.key === 'Enter' && onClick() : undefined}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      initial={{ opacity: 0, x: -14 }}
+      animate={active ? { opacity: 1, x: 0 } : { opacity: 0, x: -14 }}
+      exit={{ opacity: 0, x: 14 }}
+      transition={{ 
+        duration: 0.8, 
+        delay: (idx * 100 + 300) / 1000 
+      }}
+      whileHover={clickable ? { x: 4 } : {}}
       style={{
         display:             'grid',
         gridTemplateColumns: '1fr repeat(5, 1fr) 90px 100px',
@@ -46,10 +55,6 @@ export function CostRow({ item, idx, active, clickable, onClick }: Props) {
         borderRadius:        tokens.radius.md,
         background:          hovered && clickable ? tokens.colors.bgHover : 'transparent',
         cursor:              clickable ? 'pointer' : 'default',
-        transition:          'background 0.2s, opacity 0.4s, transform 0.4s, border-left-color 0.2s',
-        opacity:             active ? 1 : 0,
-        transform:           active ? 'translateX(0)' : 'translateX(-14px)',
-        transitionDelay:     `${idx * 60 + 200}ms`,
         alignItems:          'center',
         borderLeft:          clickable && hovered
           ? `2px solid ${tokens.colors.accentGreen}`
@@ -85,12 +90,18 @@ export function CostRow({ item, idx, active, clickable, onClick }: Props) {
           width: '36px', height: '4px',
           background: tokens.colors.bgSurface, borderRadius: '2px', overflow: 'hidden',
         }}>
-          <div style={{
-            height: '100%', width: `${item.efficiency}%`,
-            background:  ec, borderRadius: '2px',
-            transition:  'width 0.8s ease',
-            transitionDelay: `${idx * 60 + 400}ms`,
-          }} />
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={active ? { width: `${item.efficiency}%` } : { width: 0 }}
+            transition={{ 
+              duration: 1.5, 
+              ease: "easeOut",
+              delay: (idx * 100 + 600) / 1000 
+            }}
+            style={{
+              height: '100%',
+              background:  ec, borderRadius: '2px',
+            }} />
         </div>
         <span style={{ fontFamily: tokens.font.mono, fontSize: '12px', color: ec }}>
           {item.efficiency}%
@@ -104,6 +115,6 @@ export function CostRow({ item, idx, active, clickable, onClick }: Props) {
       }}>
         <AnimNum value={item.total} prefix="$" active={active} />
       </span>
-    </div>
+    </motion.div>
   )
 }

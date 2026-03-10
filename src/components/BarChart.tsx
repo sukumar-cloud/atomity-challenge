@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { tokens } from '../tokens'
 import type { CostNode } from '../types'
 
@@ -43,14 +44,17 @@ export function BarChart({ items, active }: Props) {
               onMouseLeave={() => setHovered(null)}
             >
               <div style={{ width: '100%', height: '110px', display: 'flex', alignItems: 'flex-end' }}>
-                <div
+                <motion.div
+                  initial={{ height: '0%' }}
+                  animate={active ? { height: `${pct}%` } : { height: '0%' }}
+                  transition={{ 
+                    height: { type: 'spring', damping: 20, stiffness: 60, delay: idx * 0.15 },
+                    opacity: { duration: 0.4 }
+                  }}
                   style={{
                     width:        '100%',
-                    height:       active ? `${pct}%` : '0%',
                     background:   tokens.effects.accentGradient,
                     borderRadius: `${tokens.radius.sm} ${tokens.radius.sm} 2px 2px`,
-                    transition:   `height 0.7s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s`,
-                    transitionDelay: `${idx * 80}ms`,
                     boxShadow:    isHovered ? tokens.shadows.glowHover : active ? tokens.shadows.glow : 'none',
                     position:     'relative',
                     overflow:     'hidden',
@@ -62,7 +66,7 @@ export function BarChart({ items, active }: Props) {
                     inset:      0,
                     background: tokens.effects.shimmerGradient,
                   }} />
-                </div>
+                </motion.div>
               </div>
               <span style={{
                 fontSize:   '11px',
@@ -78,21 +82,27 @@ export function BarChart({ items, active }: Props) {
         })}
       </div>
 
-      {hoveredItem && (
-        <div style={{
-          position:     'fixed',
-          left:         `${tooltipPos.x}px`,
-          top:          `${tooltipPos.y}px`,
-          transform:    'translate(-50%, -100%)',
-          background:   tokens.colors.bgSurface,
-          border:       `1px solid ${tokens.colors.borderSubtle}`,
-          borderRadius: tokens.radius.md,
-          padding:      '12px 16px',
-          zIndex:       10001,
-          minWidth:     '240px',
-          boxShadow:    tokens.shadows.tooltip,
-          pointerEvents: 'none',
-        }}>
+      <AnimatePresence>
+        {hoveredItem && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position:     'fixed',
+              left:         `${tooltipPos.x}px`,
+              top:          `${tooltipPos.y}px`,
+              transform:    'translate(-50%, -100%)',
+              background:   tokens.colors.bgSurface,
+              border:       `1px solid ${tokens.colors.borderSubtle}`,
+              borderRadius: tokens.radius.md,
+              padding:      '12px 16px',
+              zIndex:       10001,
+              minWidth:     '240px',
+              boxShadow:    tokens.shadows.tooltip,
+              pointerEvents: 'none',
+            }}>
           <div style={{
             fontSize:     '12px',
             fontWeight:   700,
@@ -141,8 +151,9 @@ export function BarChart({ items, active }: Props) {
               <span>${hoveredItem.total}</span>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   )
 }

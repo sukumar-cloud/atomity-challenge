@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { tokens } from '../tokens'
 import { useInView } from '../hooks/useInView'
 import { BarChart } from './BarChart'
@@ -113,9 +114,12 @@ export function CostExplorer({ clusters }: Props) {
   const levelLabel = level === 'cluster' ? 'Clusters' : level === 'namespace' ? 'Namespaces' : 'Pods'
 
   return (
-    <section
+    <motion.section
       ref={sectionRef}
       aria-label="Cloud Cost Explorer"
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ duration: 1.2, ease: "easeOut" }}
       style={{ padding: '0 clamp(16px, 5vw, 60px) 120px', maxWidth: '1100px', margin: '0 auto' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
@@ -145,16 +149,16 @@ export function CostExplorer({ clusters }: Props) {
         <StatCard label="Avg Efficiency" value={avgEfficiency} color={effColor(avgEfficiency)} active={inView} delay="160ms" prefix="" suffix="%" />
       </div>
 
-      <div style={{
-        background:   tokens.colors.bgCard,
-        border:       `1px solid ${tokens.colors.borderSubtle}`,
-        borderRadius: tokens.radius.xl,
-        overflow:     'visible',
-        opacity:      inView ? 1 : 0,
-        transform:    inView ? 'translateY(0)' : 'translateY(24px)',
-        transition:   'opacity 0.6s ease, transform 0.6s ease',
-        boxShadow:    tokens.shadows.card,
-      }}>
+      <motion.div 
+        layout
+        style={{
+          background:   tokens.colors.bgCard,
+          border:       `1px solid ${tokens.colors.borderSubtle}`,
+          borderRadius: tokens.radius.xl,
+          overflow:     'visible',
+          boxShadow:    tokens.shadows.card,
+        }}
+      >
         <div style={{
           padding:    '32px 32px 20px',
           borderBottom: `1px solid ${tokens.colors.borderSubtle}`,
@@ -189,23 +193,30 @@ export function CostExplorer({ clusters }: Props) {
 
         <div style={{ padding: '16px 16px 24px' }}>
           <TableHeader />
-          {items.length > 0
-            ? items.map((item, idx) => (
-              <CostRow
-                key={`${animKey}-${item.id}`}
-                item={item}
-                idx={idx}
-                active={inView}
-                clickable={isClickable(idx)}
-                onClick={() => handleRowClick(idx)}
-              />
-            ))
-            : (
-              <div style={{ padding: '40px', textAlign: 'center', color: tokens.colors.textMuted, fontFamily: tokens.font.sans }}>
-                {level === 'cluster' ? 'Select a cluster to drill down' : 'No pods in this namespace'}
-              </div>
-            )
-          }
+          <AnimatePresence mode="popLayout">
+            {items.length > 0
+              ? items.map((item, idx) => (
+                <CostRow
+                  key={`${animKey}-${item.id}`}
+                  item={item}
+                  idx={idx}
+                  active={inView}
+                  clickable={isClickable(idx)}
+                  onClick={() => handleRowClick(idx)}
+                />
+              ))
+              : (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  style={{ padding: '40px', textAlign: 'center', color: tokens.colors.textMuted, fontFamily: tokens.font.sans }}
+                >
+                  {level === 'cluster' ? 'Select a cluster to drill down' : 'No pods in this namespace'}
+                </motion.div>
+              )
+            }
+          </AnimatePresence>
         </div>
 
         {level !== 'pod' && items.some((_, i) => isClickable(i)) && (
@@ -223,9 +234,11 @@ export function CostExplorer({ clusters }: Props) {
             </span>
           </div>
         )}
-      </div>
+      </motion.div>
 
-      <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <motion.div 
+        layout
+        style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ fontSize: '12px', color: tokens.colors.textMuted, fontFamily: tokens.font.sans }}>
           Aggregated by:
         </span>
@@ -241,7 +254,7 @@ export function CostExplorer({ clusters }: Props) {
         }}>
           {level.charAt(0).toUpperCase() + level.slice(1)}
         </span>
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   )
 }

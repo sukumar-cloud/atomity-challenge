@@ -1,8 +1,7 @@
 # Atomity Frontend Challenge — Cloud Cost Explorer
 
 Live Demo  
-https://atomity-challenge-63m3dbya3-sssssssssssssss-projects.vercel.app/
-
+(https://atomity-challenge.vercel.app/)
 ---
 
 ## Feature Chosen
